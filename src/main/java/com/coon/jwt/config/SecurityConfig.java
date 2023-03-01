@@ -1,8 +1,10 @@
 package com.coon.jwt.config;
 
 import com.coon.jwt.config.jwt.JwtAuthenticationFilter;
+import com.coon.jwt.config.jwt.JwtAuthorizationFilter;
 import com.coon.jwt.filter.MyFilter1;
 import com.coon.jwt.filter.MyFilter3;
+import com.coon.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CorsFilter corsFilter;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder encodePassword() {
@@ -36,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager())) // AuthenticationManger
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository)) // AuthenticationManger
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/**")
                 .access("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
